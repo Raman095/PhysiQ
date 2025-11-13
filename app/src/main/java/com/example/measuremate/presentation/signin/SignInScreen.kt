@@ -10,23 +10,44 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Text
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
 import com.example.measuremate.R
 import com.example.measuremate.presentation.component.AnonymousSignInButton
 import com.example.measuremate.presentation.component.GoogleSignInButton
+import com.example.measuremate.presentation.component.PhysiQDialog
 
 @Composable
 fun SignInScreen(
     windowSize: WindowWidthSizeClass
 ) {
+
+    var isSignInAnonymousDialogOpen by rememberSaveable { mutableStateOf(false) }
+
+    PhysiQDialog (
+        isOpen = isSignInAnonymousDialogOpen,
+        title = "Login anonymously?",
+        onDialogDismiss = { isSignInAnonymousDialogOpen = false },
+        onConfirmButtonClick = { isSignInAnonymousDialogOpen = false },
+        body = {
+            Text(
+                text = "By logging in anonymously, you will not be able to synchronize the data" +
+                        " across devices or after uninstalling the app. \nAre you sure you want to proceed?"
+            )
+        }
+    )
+
     when (windowSize) {
         WindowWidthSizeClass.Compact -> {
             Column(
@@ -46,7 +67,7 @@ fun SignInScreen(
                 )
                 Spacer(modifier = Modifier.height(10.dp))
                 AnonymousSignInButton (
-                    onClick = {}
+                    onClick = { isSignInAnonymousDialogOpen = true }
                 )
             }
     }
@@ -74,7 +95,7 @@ fun SignInScreen(
                     )
                     Spacer(modifier = Modifier.height(10.dp))
                     AnonymousSignInButton (
-                        onClick = {}
+                        onClick = { isSignInAnonymousDialogOpen = true }
                     )
                 }
             }

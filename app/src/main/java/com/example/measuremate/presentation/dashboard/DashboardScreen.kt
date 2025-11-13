@@ -26,7 +26,12 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -35,18 +40,33 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.measuremate.domain.model.BodyPart
 import com.example.measuremate.domain.model.predefinedBodyParts
+import com.example.measuremate.presentation.component.ProfileBottomSheet
 import com.example.measuremate.presentation.component.ProfilePicPlaceHolder
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardScreen() {
+
+    var isProfileBottomSheetOpen by remember { mutableStateOf(false) }
+
+
+    ProfileBottomSheet(
+        sheetState = rememberModalBottomSheetState(),
+        isOpen = isProfileBottomSheetOpen,
+        onBottomSheetDismiss = { isProfileBottomSheetOpen = false },
+        onGoogleButtonClick = { isProfileBottomSheetOpen = false},
+        buttonPrimaryText = "Sign out",
+        buttonLoadingState = false
+    )
+
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
             DashboardTopBar(
                 profilePictureUrl = null,
-                profilePictureOnClick = {}
+                profilePictureOnClick = { isProfileBottomSheetOpen = true }
             )
             LazyVerticalGrid(
                 modifier = Modifier.fillMaxSize(),
@@ -87,8 +107,11 @@ private fun DashboardTopBar(
         title = {
             Text( text = "PhysiQ")
         },
-        actions = {                          // Used to place the element on the right side of Top Bar
-            IconButton( onClick = profilePictureOnClick) {
+        actions = {        // Used to place the element on the right side of Top Bar
+
+            // When user taps the profile icon -> calls profilePictureOnClick()
+            // That lambda changes (look up in the code) isProfileBottomSheetOpen = true -> opens bottom sheet
+            IconButton( onClick = { profilePictureOnClick() }) {
                 ProfilePicPlaceHolder(
                     placeHolderSize = 45.dp,
                     borderWidth = 1.dp,
