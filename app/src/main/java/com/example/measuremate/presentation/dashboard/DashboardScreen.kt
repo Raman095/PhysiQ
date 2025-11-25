@@ -31,6 +31,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,7 +40,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.measuremate.domain.model.BodyPart
+import com.example.measuremate.domain.model.User
 import com.example.measuremate.domain.model.predefinedBodyParts
+import com.example.measuremate.presentation.component.PhysiQDialog
 import com.example.measuremate.presentation.component.ProfileBottomSheet
 import com.example.measuremate.presentation.component.ProfilePicPlaceHolder
 
@@ -50,14 +53,34 @@ fun DashboardScreen() {
 
     var isProfileBottomSheetOpen by remember { mutableStateOf(false) }
 
+    val user = User(
+        name = "Raman",
+        email = "james.madison@examplepetstore.com",
+        profilePictureUrl = null,
+        isAnonymous = false
+    )
 
+    var isSignOutDialogOpen by rememberSaveable { mutableStateOf(false) }
+
+    PhysiQDialog (
+        isOpen = isSignOutDialogOpen,
+        title = "Sign Out?",
+        onDialogDismiss = { isSignOutDialogOpen = false },
+        onConfirmButtonClick = { isSignOutDialogOpen = false },
+        body = {
+            Text(
+                text = "Are you sure, you want to sign out?"
+            )
+        }
+    )
+    
     ProfileBottomSheet(
-        sheetState = rememberModalBottomSheetState(),
         isOpen = isProfileBottomSheetOpen,
-        onBottomSheetDismiss = { isProfileBottomSheetOpen = false },
-        onGoogleButtonClick = { isProfileBottomSheetOpen = false},
+        user = user,
+        buttonLoadingState = false,
         buttonPrimaryText = "Sign out",
-        buttonLoadingState = false
+        onBottomSheetDismiss = { isProfileBottomSheetOpen = false },
+        onGoogleButtonClick = { isSignOutDialogOpen = true }
     )
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -65,8 +88,8 @@ fun DashboardScreen() {
             modifier = Modifier.fillMaxSize()
         ) {
             DashboardTopBar(
-                profilePictureUrl = null,
-                profilePictureOnClick = { isProfileBottomSheetOpen = true }
+                profilePictureUrl = user.profilePictureUrl,
+                onProfilePicClick = { isProfileBottomSheetOpen = true }
             )
             LazyVerticalGrid(
                 modifier = Modifier.fillMaxSize(),
@@ -100,7 +123,7 @@ fun DashboardScreen() {
 private fun DashboardTopBar(
     modifier: Modifier = Modifier,
     profilePictureUrl: String?,
-    profilePictureOnClick: () -> Unit
+    onProfilePicClick: () -> Unit
 ) {
     TopAppBar(
         modifier = modifier,
@@ -109,9 +132,9 @@ private fun DashboardTopBar(
         },
         actions = {        // Used to place the element on the right side of Top Bar
 
-            // When user taps the profile icon -> calls profilePictureOnClick()
+            // When user taps the profile icon -> calls onProfilePicClick()
             // That lambda changes (look up in the code) isProfileBottomSheetOpen = true -> opens bottom sheet
-            IconButton( onClick = { profilePictureOnClick() }) {
+            IconButton( onClick = { onProfilePicClick() }) {
                 ProfilePicPlaceHolder(
                     placeHolderSize = 45.dp,
                     borderWidth = 1.dp,

@@ -65,7 +65,7 @@ fun GoogleSignInButton(
 private fun GoogleSingInButtonPreview() {
     MeasureMateTheme {
         GoogleSignInButton (
-            loadingState = true,
+            loadingState = false,
             onClick = {}
         )
     }

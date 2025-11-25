@@ -7,6 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import com.example.measuremate.presentation.dashboard.DashboardScreen
+import com.example.measuremate.presentation.details.DetailsScreen
 import com.example.measuremate.presentation.signin.SignInScreen
 import com.example.measuremate.presentation.theme.MeasureMateTheme
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
@@ -18,7 +19,8 @@ class MainActivity : ComponentActivity() {
             MeasureMateTheme {
                 val windowSizeClass = calculateWindowSizeClass(activity = this)
                 //SignInScreen(windowSize = windowSizeClass.widthSizeClass)
-                DashboardScreen()
+                //DashboardScreen()
+                DetailsScreen()
             }
         }
     }

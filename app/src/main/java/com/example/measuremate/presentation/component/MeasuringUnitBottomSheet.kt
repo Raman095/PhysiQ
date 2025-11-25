@@ -1,5 +1,7 @@
 package com.example.measuremate.presentation.component
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,24 +18,25 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.measuremate.domain.model.User
+import com.example.measuremate.domain.model.MeasuringUnit
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileBottomSheet(
+fun MeasuringUnitBottomSheet(
     modifier: Modifier = Modifier,
+    sheetState: SheetState,
     isOpen: Boolean,
-    buttonLoadingState: Boolean,
-    buttonPrimaryText: String,
-    onGoogleButtonClick: () -> Unit,
     onBottomSheetDismiss: () -> Unit,
-    user: User?
+    onItemClicked: (MeasuringUnit) -> Unit,
 ) {
+
+
+
     if(isOpen) {
         ModalBottomSheet(
             modifier = modifier,
+            sheetState = sheetState,
             onDismissRequest = { onBottomSheetDismiss() },
             dragHandle = {
                 Column(
@@ -43,7 +46,7 @@ fun ProfileBottomSheet(
                 ) {
                     BottomSheetDefaults.DragHandle()
                     Text(
-                        text = "Profile",
+                        text = "Select Measuring Unit",
                         style = MaterialTheme.typography.titleLarge
                     )
                     Spacer(modifier= Modifier.height(10.dp))
@@ -52,33 +55,23 @@ fun ProfileBottomSheet(
             }
         ) {
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(20.dp),
+                modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                ProfilePicPlaceHolder(
-                    placeHolderSize = 120.dp,
-                    borderWidth = 2.dp,
-                    profilePictureUrl = user?.profilePictureUrl,
-                    padding = 5.dp
-                )
-                Spacer(modifier= Modifier.height(10.dp))
-                Text(
-                    text = if (user == null || user.isAnonymous) "Anonymous" else user.name,
-                    style = MaterialTheme.typography.bodySmall
-                )
-                Spacer(modifier= Modifier.height(4.dp))
-                Text(
-                    text =if (user == null || user.isAnonymous) "anonymous@gmail.com" else user.email,
-                    style = MaterialTheme.typography.bodySmall
-                )
-                Spacer(modifier= Modifier.height(20.dp))
-                GoogleSignInButton(
-                    onClick = { onGoogleButtonClick() },
-                    primaryText = buttonPrimaryText,
-                    loadingState = buttonLoadingState
-                )
+                Spacer(modifier = Modifier.height(12.dp))
+                MeasuringUnit.entries.forEach { unit ->
+                    Box(
+                        modifier = Modifier.fillMaxWidth()
+                            .clickable { onItemClicked(unit) }
+                            .padding(vertical = 12.dp, horizontal = 16.dp)
+                    ) {
+                        Text(
+                            text = "${unit.label} (${unit.code})",
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(12.dp))
             }
         }
     }
