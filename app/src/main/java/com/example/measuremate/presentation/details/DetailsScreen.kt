@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -40,12 +41,15 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.measuremate.domain.model.BodyPart
+import com.example.measuremate.domain.model.BodyPartValues
 import com.example.measuremate.domain.model.MeasuringUnit
 import com.example.measuremate.domain.model.TimeRange
+import com.example.measuremate.presentation.component.LineGraph
 import com.example.measuremate.presentation.component.MeasuringUnitBottomSheet
 import com.example.measuremate.presentation.component.PhysiQDialog
 import com.example.measuremate.presentation.theme.MeasureMateTheme
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -100,8 +104,29 @@ fun DetailsScreen() {
             selectedTimeRange = selectedTimeRange,
             onClick = { selectedTimeRange = it}
         )
+
+        LineGraph(
+            modifier = Modifier.fillMaxWidth()
+                .aspectRatio( ratio = 2 / 1f)
+                .padding(16.dp),
+            bodyPartValues = dummyBodyPartValues
+        )
     }
 }
+
+val dummyBodyPartValues = listOf(
+    BodyPartValues(value = 72.0f, date = LocalDate.of(2023, 5, 10)),
+    BodyPartValues(value = 76.854515466f, date = LocalDate.of(2023, 5, 1)),
+    BodyPartValues(value = 74.0f, date = LocalDate.of(2023, 4, 20)),
+    BodyPartValues(value = 75.1f, date = LocalDate.of(2023, 4, 5)),
+    BodyPartValues(value = 66.3f, date = LocalDate.of(2023, 3, 15)),
+    BodyPartValues(value = 67.2f, date = LocalDate.of(2023, 3, 10)),
+    BodyPartValues(value = 73.5f, date = LocalDate.of(2023, 3, 1)),
+    BodyPartValues(value = 69.8545615f, date = LocalDate.of(2023, 2, 18)),
+    BodyPartValues(value = 68.4f, date = LocalDate.of(2023, 2, 1)),
+    BodyPartValues(value = 72.0f, date = LocalDate.of(2023, 1, 22)),
+    BodyPartValues(value = 70.5f, date = LocalDate.of(2023, 1, 14))
+)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
