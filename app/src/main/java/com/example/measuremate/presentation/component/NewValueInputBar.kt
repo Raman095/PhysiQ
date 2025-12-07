@@ -34,7 +34,9 @@ fun NewValueInputBar(
             modifier = Modifier.weight(1f),
             value = value,
             onValueChange = onValueChange,
-
+            trailingIcon = {
+                
+            }
         )
         FilledIconButton( onClick = { onDoneIconClick() } ) {
             Icon(
