@@ -1,4 +1,6 @@
 package com.example.measuremate.data.repository
 
-class DatabaseRepositoryImpl {
+import com.example.measuremate.domain.repository.DatabaseRepository
+
+class DatabaseRepositoryImpl: DatabaseRepository {
 }

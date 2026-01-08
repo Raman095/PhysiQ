@@ -2,6 +2,9 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlinx.serialization)
+    alias(libs.plugins.dagger.hilt)
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -34,8 +37,10 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-    kotlinOptions {
-        jvmTarget = "11"
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11)
+        }
     }
     buildFeatures {
         compose = true
@@ -62,6 +67,11 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.compose.material.icons.extended)
+    configurations.all {
+        resolutionStrategy {
+            force("org.jetbrains.kotlin:kotlin-metadata-jvm:2.3.0")
+        }
+    }
 
     // Downloadable Fonts
     implementation(libs.androidx.compose.ui.text.google.fonts)
@@ -73,4 +83,14 @@ dependencies {
 
     // Desugaring
     coreLibraryDesugaring(libs.desugar.jdk.libs)
+
+    //navigation
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.kotlinx.serialization.json)
+
+    //dagger-hilt
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.android.compiler)
+    ksp(libs.androidx.hilt.compiler)
+    implementation("androidx.hilt:hilt-navigation-compose:1.3.0")
 }

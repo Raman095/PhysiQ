@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -49,7 +50,11 @@ import com.example.measuremate.presentation.component.ProfilePicPlaceHolder
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DashboardScreen() {
+fun DashboardScreen(
+    paddingValues: PaddingValues,
+    onFabClicked: () -> Unit,
+    onItemCardClicked: (String) -> Unit
+) {
 
     var isProfileBottomSheetOpen by remember { mutableStateOf(false) }
 
@@ -83,7 +88,9 @@ fun DashboardScreen() {
         onGoogleButtonClick = { isSignOutDialogOpen = true }
     )
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(
+        modifier = Modifier.fillMaxSize().padding(paddingValues)
+    ) {
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
@@ -100,7 +107,8 @@ fun DashboardScreen() {
             ) {
                 items(predefinedBodyParts) { item ->
                     ItemCard(
-                        bodyPart = item
+                        bodyPart = item,
+                        onItemCardClicked = onItemCardClicked
                     )
                 }
             }
@@ -108,7 +116,7 @@ fun DashboardScreen() {
         FloatingActionButton(
             modifier = Modifier.align(Alignment.BottomEnd)
                 .padding(24.dp),
-            onClick = {}
+            onClick = { onFabClicked() }
         ) {
             Icon(
                 imageVector = Icons.Default.Add,
@@ -127,6 +135,7 @@ private fun DashboardTopBar(
 ) {
     TopAppBar(
         modifier = modifier,
+        windowInsets = WindowInsets(0,0,0,0),
         title = {
             Text( text = "PhysiQ")
         },
@@ -149,11 +158,12 @@ private fun DashboardTopBar(
 @Composable
 private fun ItemCard(
     modifier: Modifier = Modifier,
-    bodyPart: BodyPart
+    bodyPart: BodyPart,
+    onItemCardClicked: (String) -> Unit
 ) {
     Card(
         modifier = modifier,
-        onClick = {}
+        onClick = { bodyPart.bodyPartId?.let { onItemCardClicked(it) } }
     ) {
         Row(
             modifier = Modifier.padding(16.dp),
@@ -191,5 +201,9 @@ private fun ItemCard(
 @Preview (showBackground = true)
 @Composable
 private fun DashboardScreenPreview() {
-    DashboardScreen()
+    DashboardScreen(
+        onItemCardClicked = {},
+        onFabClicked = {},
+        paddingValues = PaddingValues(0.dp)
+    )
 }

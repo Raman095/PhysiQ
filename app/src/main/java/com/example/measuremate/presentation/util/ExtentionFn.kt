@@ -1,6 +1,9 @@
 package com.example.measuremate.presentation.util
 
+import androidx.compose.material3.SelectableDates
+import java.time.Instant
 import java.time.LocalDate
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import kotlin.math.pow
 import kotlin.math.roundToInt
@@ -31,5 +34,28 @@ fun LocalDate?.changeLocalDateToDateString(
     }
     catch (e: Exception) {
         defaultValue.format(DateTimeFormatter.ofPattern("dd MMM yyyy"))
+    }
+}
+
+fun Long?.changeMillisToLocalDate() : LocalDate {
+    return try {
+        this?.let {
+            Instant
+                .ofEpochMilli(it)
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate()
+        } ?: LocalDate.now()
+    } catch (e: Exception) {
+        LocalDate.now()
+    }
+}
+
+object PastOrPresentSelectableDates : SelectableDates {
+    override fun isSelectableDate(utcTimeMillis: Long): Boolean {
+        return utcTimeMillis <= System.currentTimeMillis()
+    }
+
+    override fun isSelectableYear(year: Int): Boolean {
+        return year <= LocalDate.now().year
     }
 }

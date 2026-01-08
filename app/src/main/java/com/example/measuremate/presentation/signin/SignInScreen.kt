@@ -3,11 +3,13 @@ package com.example.measuremate.presentation.signin
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
@@ -20,6 +22,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
@@ -30,8 +33,12 @@ import com.example.measuremate.presentation.component.PhysiQDialog
 
 @Composable
 fun SignInScreen(
-    windowSize: WindowWidthSizeClass
+    windowSize: WindowWidthSizeClass,
+    paddingValues: PaddingValues,
+    onEvent: (SignInEvent) -> Unit,
+    state: SignInState
 ) {
+    val context = LocalContext.current
 
     var isSignInAnonymousDialogOpen by rememberSaveable { mutableStateOf(false) }
 
@@ -39,7 +46,9 @@ fun SignInScreen(
         isOpen = isSignInAnonymousDialogOpen,
         title = "Login anonymously?",
         onDialogDismiss = { isSignInAnonymousDialogOpen = false },
-        onConfirmButtonClick = { isSignInAnonymousDialogOpen = false },
+        onConfirmButtonClick = {
+            onEvent(SignInEvent.SignInAnonymously)
+            isSignInAnonymousDialogOpen = false },
         body = {
             Text(
                 text = "By logging in anonymously, you will not be able to synchronize the data" +
@@ -51,7 +60,7 @@ fun SignInScreen(
     when (windowSize) {
         WindowWidthSizeClass.Compact -> {
             Column(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier.fillMaxSize().padding(paddingValues),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
@@ -63,10 +72,12 @@ fun SignInScreen(
                 )
                 Spacer(modifier = Modifier.height(220.dp))
                 GoogleSignInButton (
-                    onClick = {}
+                    loadingState = state.isGoogleSignInButtonLoading,
+                    onClick = { onEvent(SignInEvent.SignInWithGoogle(context)) }
                 )
                 Spacer(modifier = Modifier.height(10.dp))
                 AnonymousSignInButton (
+                    loadingState = state.isAnonymousSignInButtonLoading,
                     onClick = { isSignInAnonymousDialogOpen = true }
                 )
             }
@@ -107,6 +118,9 @@ fun SignInScreen(
 @Composable
 private fun SignInScreenPreview() {
     SignInScreen(
-        windowSize = WindowWidthSizeClass.Medium
+        windowSize = WindowWidthSizeClass.Medium,
+        paddingValues = PaddingValues(0.dp),
+        state = SignInState(),
+        onEvent = {}
     )
 }

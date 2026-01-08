@@ -1,4 +1,6 @@
 package com.example.measuremate.presentation.dashboard
 
-class DashboardViewModel {
+import androidx.lifecycle.ViewModel
+
+class DashboardViewModel: ViewModel() {
 }

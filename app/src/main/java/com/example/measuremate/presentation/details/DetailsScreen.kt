@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,6 +22,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.rounded.ArrowDropDown
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material3.CardDefaults
@@ -31,6 +34,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -46,6 +50,7 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
@@ -57,11 +62,15 @@ import com.example.measuremate.domain.model.BodyPartValues
 import com.example.measuremate.domain.model.MeasuringUnit
 import com.example.measuremate.domain.model.TimeRange
 import com.example.measuremate.presentation.component.LineGraph
+import com.example.measuremate.presentation.component.MeasureMateDatePicker
 import com.example.measuremate.presentation.component.MeasuringUnitBottomSheet
+import com.example.measuremate.presentation.component.NewValueInputBar
 import com.example.measuremate.presentation.component.PhysiQDialog
 import com.example.measuremate.presentation.theme.MeasureMateTheme
+import com.example.measuremate.presentation.util.PastOrPresentSelectableDates
 import com.example.measuremate.presentation.util.changeLocalDateToDateString
 import com.example.measuremate.presentation.util.changeLocalDateToGraphDate
+import com.example.measuremate.presentation.util.changeMillisToLocalDate
 import com.example.measuremate.presentation.util.roundToDecimal
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -69,11 +78,18 @@ import kotlin.collections.List
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DetailsScreen() {
+fun DetailsScreen(
+    paddingValues: PaddingValues,
+    bodyPartId: String,
+    onBackIconClick: () -> Unit
+) {
 
+    var inputValue by remember { mutableStateOf("") }
+    val focusManager = LocalFocusManager.current
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)  // opens the bottom sheet fully, not partially
     val scope = rememberCoroutineScope()
     var isMeasuringUnitBottomSheetOpen by remember { mutableStateOf(false) }
+    var isNewValueInputBarOpen by rememberSaveable { mutableStateOf(true) }
 
     MeasuringUnitBottomSheet(
         isOpen = isMeasuringUnitBottomSheetOpen,
@@ -104,34 +120,78 @@ fun DetailsScreen() {
 
     var selectedTimeRange by remember { mutableStateOf(TimeRange.LAST7DAYS)}
 
-    Column(
-        modifier = Modifier.fillMaxSize()
+    var isDatePickerDialogOpen by rememberSaveable { mutableStateOf(false) }
+    val datePickerState = rememberDatePickerState(
+        initialSelectedDateMillis = System.currentTimeMillis(),
+        selectableDates = PastOrPresentSelectableDates
+    )
+    MeasureMateDatePicker(
+        state = datePickerState,
+        isOpen = isDatePickerDialogOpen,
+        onDismissRequest = { isDatePickerDialogOpen = false },
+        onConfirmButtonClicked = { isDatePickerDialogOpen = false }
+    )
+
+    val dummyBodyPart = BodyPart(
+        name = "Shoulder: $bodyPartId",
+        isActive = true,
+        measuringUnit = MeasuringUnit.CM.code
+    )
+
+    Box(
+        modifier = Modifier.fillMaxSize().padding(paddingValues)
     ) {
-        DetailsTopBar(
-            bodyPart = BodyPart(name = "Shoulder", isActive = true, measuringUnit = MeasuringUnit.CM.code),
-            onDeleteIconClick = { isDeleteItemDialogOpen = true },
-            onBackIconClick = {},
-            onUnitIconClick = { isMeasuringUnitBottomSheetOpen = true }
-        )
-        ChartTimeRangeButtons(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            selectedTimeRange = selectedTimeRange,
-            onClick = { selectedTimeRange = it}
+        Column(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            //<editor-fold desc = "Content Folded">
+            DetailsTopBar(
+                bodyPart = dummyBodyPart,
+                onDeleteIconClick = { isDeleteItemDialogOpen = true },
+                onBackIconClick = onBackIconClick,
+                onUnitIconClick = { isMeasuringUnitBottomSheetOpen = true }
+            )
+
+            ChartTimeRangeButtons(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                selectedTimeRange = selectedTimeRange,
+                onClick = { selectedTimeRange = it}
+            )
+
+            LineGraph(
+                modifier = Modifier.fillMaxWidth()
+                    .aspectRatio( ratio = 2 / 1f)
+                    .padding(16.dp),
+                bodyPartValues = dummyBodyPartValues
+            )
+
+            HistorySection(
+                bodyPartValues = dummyBodyPartValues,
+                measuringUnitCode = "cm",
+                onDeleteIconClick = {}
+            )
+            //</editor-fold>
+        }
+
+        NewValueInputBar(
+            modifier = Modifier.align(Alignment.BottomCenter),
+            value = inputValue,
+            onValueChange = { inputValue = it },
+            isNewValueInputBarOpen = isNewValueInputBarOpen,
+            onDoneIconClick = {},
+            date = datePickerState.selectedDateMillis.changeMillisToLocalDate().changeLocalDateToDateString(),
+            onDoneImeActionClick = {
+                focusManager.clearFocus()
+            },
+            onCalendarIconClick = { isDatePickerDialogOpen = true }
         )
 
-        LineGraph(
-            modifier = Modifier.fillMaxWidth()
-                .aspectRatio( ratio = 2 / 1f)
-                .padding(16.dp),
-            bodyPartValues = dummyBodyPartValues
-        )
-
-        HistorySection(
-            bodyPartValues = dummyBodyPartValues,
-            measuringUnitCode = "cm",
-            onDeleteIconClick = {}
+        NewValueInputCardHideIcon(
+            modifier = Modifier.align(Alignment.BottomEnd).padding(end = 8.dp),
+            isInputValueCardVisible = isNewValueInputBarOpen,
+            onClick = { isNewValueInputBarOpen = !isNewValueInputBarOpen }
         )
     }
 }
@@ -161,6 +221,7 @@ private fun DetailsTopBar(
 ) {
     TopAppBar(
         modifier = modifier,
+        windowInsets = WindowInsets(0,0,0,0),
         title = {
             Text(
                 text = bodyPart?.name ?: "",
@@ -330,10 +391,32 @@ private fun HistoryCard(
     }
 }
 
+@Composable
+fun NewValueInputCardHideIcon(
+    modifier: Modifier = Modifier,
+    isInputValueCardVisible: Boolean,
+    onClick: () -> Unit
+) {
+    IconButton(
+        modifier = modifier,
+        onClick = { onClick() }
+    ) {
+        Icon(
+            imageVector = if (isInputValueCardVisible) Icons.Default.KeyboardArrowDown
+            else Icons.Default.KeyboardArrowUp,
+            contentDescription = "Close or Open Input Card",
+        )
+    }
+}
+
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 private fun DetailsScreenPreview() {
     MeasureMateTheme {
-        DetailsScreen()
+        DetailsScreen(
+            bodyPartId = "",
+            onBackIconClick = {},
+            paddingValues = PaddingValues(0.dp)
+        )
     }
 }

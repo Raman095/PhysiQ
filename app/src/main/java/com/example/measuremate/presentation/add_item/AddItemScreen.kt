@@ -7,7 +7,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -36,7 +38,10 @@ import com.example.measuremate.presentation.component.PhysiQDialog
 import com.example.measuremate.presentation.theme.MeasureMateTheme
 
 @Composable
-fun AddItemScreen() {
+fun AddItemScreen(
+    paddingValues: PaddingValues,
+    onBackIconClick: () -> Unit
+) {
 
     var isAddNewItemDialogOpen by rememberSaveable { mutableStateOf(false) }
 
@@ -55,11 +60,11 @@ fun AddItemScreen() {
     )
 
     Column(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize().padding(paddingValues)
     ) {
         AddItemTopBar(
             onAddIconClick = { isAddNewItemDialogOpen = true },
-            onBackIconClick = {}
+            onBackIconClick = onBackIconClick
         )
         LazyVerticalGrid(
             modifier = Modifier.fillMaxSize(),
@@ -89,8 +94,9 @@ private fun AddItemTopBar(
 ) {
     TopAppBar(
         modifier = modifier,
+        windowInsets = WindowInsets(0,0,0,0),
         title = {
-            Text( text = "Add New Item")
+            Text( text = "Add Item")
         },
         navigationIcon = {
             IconButton( onClick = { onBackIconClick() }) {
@@ -147,6 +153,10 @@ private fun ItemCard(
 @Composable
 private fun AddItemScreenPreview() {
     MeasureMateTheme() {
-        AddItemScreen()
+        AddItemScreen(
+            onBackIconClick = {},
+            paddingValues = PaddingValues(0.dp)
+
+        )
     }
 }

@@ -1,4 +1,14 @@
 package com.example.measuremate.data.repository
 
-class AuthRepositoryImpl {
+import com.example.measuremate.domain.repository.AuthRepository
+
+class AuthRepositoryImpl: AuthRepository {
+
+    override suspend fun signInAnonymously(): Result<Boolean> {
+        return try {
+            Result.success(true)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }

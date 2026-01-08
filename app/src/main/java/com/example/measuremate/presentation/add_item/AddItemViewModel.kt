@@ -1,4 +1,6 @@
 package com.example.measuremate.presentation.add_item
 
-class AddItemViewModel {
+import androidx.lifecycle.ViewModel
+
+class AddItemViewModel: ViewModel() {
 }
